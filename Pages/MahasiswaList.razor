@@ -3,14 +3,21 @@
 @using System.Net.Http.Json
 @using System.Threading.Tasks
 @inject HttpClient Http
-@inject NavigationManager Navigate
 @inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
 
 <PageTitle>Mahasiswa</PageTitle>
 
 <h1>Mahasiswa SI UKDW</h1>
 
-<p>Data Mahasiswa Universitas Kristen Duta Wacana.</p>
+<p>Sistem Informasi Universitas Kristen Duta Wacana.</p>
+
+<div class="input-group col">
+        <input type="text" class="form-control" @onclick="CariData" placeholder="Cari Mahasiswa" @bind="SearchString" />
+        <a class="btn btn-primary" role="button" @onclick="CariData">Cari</a>
+        <div class="input-group col"> <a href="/add"></a><a class="btn btn-primary" role="button" @onclick="SubmitMahasiswa">Update Mahasiswa</a></div>
+</div>
+
 
 @if (mhs == null)
 {
@@ -18,10 +25,6 @@
 }
 else
 {
-    <div class="input-group col">
-        <input type="text" class="form-control" @onclick="CariData" placeholder="Cari Mahasiswa" @bind="SearchString" />
-        <a class="btn btn-primary" role="button" @onclick="CariData">Cari</a>
-    </div>
 
     <table class="Mahasiswa">
         <thead>
@@ -48,29 +51,36 @@ else
             }
         </tbody>
     </table>
+
+    <div class="social-links mt-3 text-center">        
+        <a href="/add"><button type="button" class="btn btn-primary">Add Mahasiswa</button></a>
     
-    <a href="/add">
-        <button class="btn btn-primary" >Tambah</button>
-        </a>
-
-        <a href="/delete">
-        <button class="btn btn-primary" >Hapus</button>
-        </a>
-
-        <a href="/edit">
-        <button class="btn btn-primary" >edit</button>
-        </a>
+    <a href="/add"><button type="button" class="btn btn-primary">Delete Mahasiswa</button></a>
+    </div>
 
 }
 
-
-
-@code{
-    
+@code {
+    public string Id{ get; set; }
     protected List<Mahasiswa> searchUserData = new();
     protected override async Task OnInitializedAsync(){
+        mhs = await Http.GetFromJsonAsync<List<Mahasiswa>>(Id);
         mhs = await Http.GetFromJsonAsync<List<Mahasiswa>>("https://kpsi.fti.ukdw.ac.id/api/progmob/mhs/72200434");
         searchUserData = mhs;
+    }
+    private List<Mahasiswa> mh = new();
+    private async void SubmitMahasiswa() {
+        await Http.GetFromJsonAsync<List<Mahasiswa>>("https://kpsi.fti.ukdw.ac.id/api/progmob/mhs/72200434");
+            searchUserData = mh;
+            NavigationManager.NavigateTo("/update");
+    }
+    
+    public async Task DeleteMahasiswa(int mahasiswaId) {
+        var mahasiswa = await Http.GetFromJsonAsync<List<Mahasiswa>>("https://kpsi.fti.ukdw.ac.id/api/progmob/mhs/72200434");
+            if (mahasiswa != null) {
+                await Http.GetFromJsonAsync<List<Mahasiswa>>(Id);
+                mahasiswa.RemoveAll(x => x.id == mahasiswaId);
+            }
     }
 
     protected List<Mahasiswa> mhs = new();
@@ -82,9 +92,10 @@ else
                 .ToList();
         }else{
             mhs = searchUserData;
-            }
-        }        
-        
+    }
+}
+
+
     public class Mahasiswa
     {
         public int id { get; set; }
@@ -99,5 +110,4 @@ else
 
         public string foto {get;set;}
     }
-    
 }
