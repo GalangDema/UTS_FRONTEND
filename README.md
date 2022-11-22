@@ -1,4 +1,2 @@
-# BlazorAppWasm-04
-Http Client GET Data
-# BlazorAppTugas6
-# GalangDema-BlazorAppTugas6
+UTS FRONTEND
+Pada sesi kali ini ditambahkan fitur update dan delete
